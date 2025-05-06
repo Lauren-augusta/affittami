@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Affittami Milan Proto</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 1rem; }
+    input, button { margin-top: .5rem; width: 100%; padding: .5rem; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + ReactDOM via CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script type="text/javascript">
+    const { useState, useEffect } = React;
+
+    function SignUp({ onSignedUp }) {
+      const [email, setEmail]     = useState("");
+      const [maxRent, setMaxRent] = useState("");
+      const [status, setStatus]   = useState("");
+
+      const submit = async () => {
+        const res = await fetch("/userPrefs", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ email, maxRent: Number(maxRent) })
+        });
+        if (res.ok) {
+          setStatus("✅ You're in our queue!");
+          onSignedUp(maxRent);
+        } else {
+          setStatus("❌ Something went wrong");
+        }
+      };
+
+      return (
+        React.createElement("div", null,
+          React.createElement("h1", null, "Get Early Access"),
+          React.createElement("input", {
+            type:"email", placeholder:"you@example.com",
+            value:email, onChange:e=>setEmail(e.target.value)
+          }),
+          React.createElement("input", {
+            type:"number", placeholder:"Max Rent (EUR)",
+            value:maxRent, onChange:e=>setMaxRent(e.target.value)
+          }),
+          React.createElement("button", { onClick:submit }, "Sign Up"),
+          React.createElement("p", null, status)
+        )
+      );
+    }
+
+    function Matches({ rent }) {
+      const [listings, setListings] = useState([]);
+
+      useEffect(() => {
+        fetch(`/listings?rent_lte=${rent}`)
+          .then(r => r.json())
+          .then(setListings);
+      }, [rent]);
+
+      return (
+        React.createElement("div", null,
+          React.createElement("h1", null, "Your Matches"),
+          listings.length === 0
+            ? React.createElement("p", null, "No listings under €" + rent)
+            : listings.map(l =>
+                React.createElement("div", { key:l.id, style:{border:"1px solid #ccc", padding:".5rem", margin:".5rem 0"} },
+                  React.createElement("h2", null, l.title),
+                  React.createElement("p", null, `€${l.rent} — ${l.neighborhood}`),
+                  React.createElement("a", { href:l.url, target:"_blank" }, "View Listing")
+                )
+              )
+        )
+      );
+    }
+
+    function App() {
+      const [rentFilter, setRentFilter] = useState(null);
+      return rentFilter
+        ? React.createElement(Matches, { rent: rentFilter })
+        : React.createElement(SignUp, { onSignedUp: setRentFilter });
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(
+      React.createElement(App)
+    );
+  </script>
+</body>
+</html>

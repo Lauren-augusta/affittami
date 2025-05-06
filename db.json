@@ -1,0 +1,28 @@
+{
+  "userPrefs": [
+    {
+      "email": "lauren@example.com",
+      "maxRent": 1000
+    },
+    {
+      "email": "example.com",
+      "maxRent": 1000
+    }
+  ],
+  "listings": [
+    {
+      "id": 1,
+      "title": "Cozy 1-BR",
+      "rent": 900,
+      "neighborhood": "Porta Romana",
+      "url": "\u2026"
+    },
+    {
+      "id": 2,
+      "title": "Loft near Duomo",
+      "rent": 1200,
+      "neighborhood": "Duomo",
+      "url": "\u2026"
+    }
+  ]
+}
